@@ -1,46 +1,58 @@
 const SUPABASE_URL = "https://ibmwrbpucbbflnxopfwm.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlibXdyYnB1Y2JiZmxueG9wZndtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NjczNjgsImV4cCI6MjA5ODI0MzM2OH0.hAf6u1Vb8Z45jC2kCLHI3pZvDk2GMNBWY6mfwcCbUts";
 
-let codeReader;
+let codeReader = null;
 
 // =====================
-// SEARCH BY BARCODE
+// BARCODE SEARCH
 // =====================
 async function searchByBarcode() {
 
-    let barcode = document.getElementById("barcodeBox").value;
+    try {
+        const barcode = document.getElementById("barcodeBox").value.trim();
 
-    let url = `${SUPABASE_URL}/rest/v1/products?barcode=eq.${barcode}&select=*`;
+        const url = `${SUPABASE_URL}/rest/v1/products?barcode=eq.${barcode}&select=*`;
 
-    let res = await fetch(url, {
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: "Bearer " + SUPABASE_KEY
-        }
-    });
+        const res = await fetch(url, {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: "Bearer " + SUPABASE_KEY
+            }
+        });
 
-    let data = await res.json();
-    showResults(data);
+        const data = await res.json();
+        showResults(data);
+
+    } catch (err) {
+        console.error(err);
+        alert("Barcode search failed");
+    }
 }
 
 // =====================
-// SEARCH BY KEYWORD
+// KEYWORD SEARCH
 // =====================
 async function searchByKeyword() {
 
-    let keyword = document.getElementById("keywordBox").value;
+    try {
+        const keyword = document.getElementById("keywordBox").value.trim();
 
-    let url = `${SUPABASE_URL}/rest/v1/products?or=(description.ilike.*${keyword}*)&select=*`;
+        const url = `${SUPABASE_URL}/rest/v1/products?description=ilike.*${encodeURIComponent(keyword)}*&select=*`;
 
-    let res = await fetch(url, {
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: "Bearer " + SUPABASE_KEY
-        }
-    });
+        const res = await fetch(url, {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: "Bearer " + SUPABASE_KEY
+            }
+        });
 
-    let data = await res.json();
-    showResults(data);
+        const data = await res.json();
+        showResults(data);
+
+    } catch (err) {
+        console.error(err);
+        alert("Keyword search failed");
+    }
 }
 
 // =====================
@@ -48,10 +60,10 @@ async function searchByKeyword() {
 // =====================
 function showResults(data) {
 
-    let div = document.getElementById("results");
+    const div = document.getElementById("results");
     div.innerHTML = "";
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
         div.innerHTML = "<p>No results found</p>";
         return;
     }
@@ -59,36 +71,40 @@ function showResults(data) {
     data.forEach(p => {
 
         div.innerHTML += `
-            <div>
-                <b>${p.description}</b><br>
-                Barcode: ${p.barcode}<br>
-                Price: ${p.price}<br>
-                Cost: ${p.cost}<br>
-                Qty: ${p.qty_on_hand}
+            <div class="product">
+                <b>${p.description ?? ""}</b><br>
+                Barcode: ${p.barcode ?? ""}<br>
+                Price: ${p.price ?? 0}<br>
+                Cost: ${p.cost ?? 0}<br>
+                Qty: ${p.qty_on_hand ?? 0}
             </div>
         `;
     });
 }
 
----
-
-# 📷 3. BACK CAMERA SCANNER (IMPORTANT PART)
-
-```javascript
 // =====================
-// OPEN SCANNER (BACK CAMERA ONLY)
+// OPEN SCANNER (BACK CAMERA)
 // =====================
 async function openScanner() {
 
-    document.getElementById("scannerContainer").style.display = "block";
-
-    codeReader = new ZXing.BrowserMultiFormatReader();
-
     try {
+
+        if (!window.ZXing) {
+            alert("ZXing library not loaded");
+            return;
+        }
+
+        document.getElementById("scannerContainer").style.display = "block";
+
+        codeReader = new ZXing.BrowserMultiFormatReader();
 
         const devices = await codeReader.listVideoInputDevices();
 
-        // try to select BACK camera
+        if (!devices.length) {
+            alert("No camera found");
+            return;
+        }
+
         let backCamera = devices.find(d =>
             d.label.toLowerCase().includes("back") ||
             d.label.toLowerCase().includes("rear") ||
@@ -97,24 +113,22 @@ async function openScanner() {
 
         let deviceId = backCamera ? backCamera.deviceId : devices[0].deviceId;
 
-        await codeReader.decodeFromVideoDevice(
+        codeReader.decodeFromVideoDevice(
             deviceId,
             "scannerVideo",
             (result, err) => {
 
                 if (result) {
-
                     document.getElementById("barcodeBox").value = result.text;
-
                     closeScanner();
-
                     searchByBarcode();
                 }
             }
         );
 
-    } catch (e) {
-        alert("Camera error: " + e);
+    } catch (err) {
+        console.error(err);
+        alert("Camera error: " + err);
     }
 }
 
@@ -125,6 +139,7 @@ function closeScanner() {
 
     if (codeReader) {
         codeReader.reset();
+        codeReader = null;
     }
 
     document.getElementById("scannerContainer").style.display = "none";
