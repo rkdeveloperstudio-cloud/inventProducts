@@ -93,11 +93,11 @@ function showResults(data) {
 <div class="product">
 
     <div style="font-size:15px;font-weight:bold;color:#1565c0;">
-        ${p.barcode ?? ""}
+        ${p.barcode || ""}
     </div>
 
     <div style="font-size:18px;font-weight:bold;margin:8px 0;">
-        ${p.description ?? ""}
+        ${p.description || ""}
     </div>
 
     <hr>
@@ -113,14 +113,14 @@ function showResults(data) {
         </span>
     </div>
 
-    <div><b>Supplier :</b> ${p.latest_supplier || p.LatestSupplier || "-"}</div>
+    <div><b>Supplier :</b> ${p.latest_supplier || "-"}</div>
 
-    <div><b>Latest Purchase :</b> ${formatDate(p.latest_purchase_date || p.PurchaseDate)}</div>
+    <div><b>Latest Purchase :</b> ${formatDate(p.latest_purchase_date)}</div>
 
-</div>
-`;
+</div>`;
     });
 }
+
 // =====================
 // OPEN CAMERA SCANNER
 // =====================
