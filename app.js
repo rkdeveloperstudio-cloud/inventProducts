@@ -11,7 +11,7 @@ async function searchByBarcode() {
     const barcode = document.getElementById("barcodeBox").value.trim();
     if (!barcode) return;
 
-    const url =
+   const url =
 `${SUPABASE_URL}/rest/v1/products?select=barcode,description,cost,price,qty_on_hand,latest_supplier,latest_purchase_date&barcode=eq.${encodeURIComponent(barcode)}`;
 
     const res = await fetch(url, {
@@ -80,6 +80,8 @@ function showResults(data) {
         return;
     }
 
+    let html = "";
+
     data.forEach(p => {
 
         const qty = parseInt(p.qty_on_hand || 0);
@@ -89,7 +91,7 @@ function showResults(data) {
             qty === 0 ? "gray" :
             "green";
 
-        div.innerHTML += `
+        html += `
 <div class="product">
 
     <div style="font-size:15px;font-weight:bold;color:#1565c0;">
@@ -103,7 +105,6 @@ function showResults(data) {
     <hr>
 
     <div><b>Cost :</b> ${formatMoney(p.cost)}</div>
-
     <div><b>Price :</b> ${formatMoney(p.price)}</div>
 
     <div>
@@ -113,14 +114,14 @@ function showResults(data) {
         </span>
     </div>
 
-    <div><b>Supplier :</b> ${p.latest_supplier || "-"}</div>
-
+    <div><b>Supplier :</b> ${p.latest_supplier ?? "-"}</div>
     <div><b>Latest Purchase :</b> ${formatDate(p.latest_purchase_date)}</div>
 
 </div>`;
     });
-}
 
+    div.innerHTML = html;
+}
 // =====================
 // OPEN CAMERA SCANNER
 // =====================
