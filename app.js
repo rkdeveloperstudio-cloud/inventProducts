@@ -8,25 +8,20 @@ let codeReader = null;
 // =====================
 async function searchByBarcode() {
 
-    try {
-        const barcode = document.getElementById("barcodeBox").value.trim();
+    const barcode = document.getElementById("barcodeBox").value.trim();
+    if (!barcode) return;
 
-        const url = `${SUPABASE_URL}/rest/v1/products?barcode=eq.${barcode}&select=*`;
+    const url = `${SUPABASE_URL}/rest/v1/products?barcode=eq.${barcode}&select=*`;
 
-        const res = await fetch(url, {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: "Bearer " + SUPABASE_KEY
-            }
-        });
+    const res = await fetch(url, {
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: "Bearer " + SUPABASE_KEY
+        }
+    });
 
-        const data = await res.json();
-        showResults(data);
-
-    } catch (err) {
-        console.error(err);
-        alert("Barcode search failed");
-    }
+    const data = await res.json();
+    showResults(data);
 }
 
 // =====================
@@ -34,25 +29,20 @@ async function searchByBarcode() {
 // =====================
 async function searchByKeyword() {
 
-    try {
-        const keyword = document.getElementById("keywordBox").value.trim();
+    const keyword = document.getElementById("keywordBox").value.trim();
+    if (!keyword) return;
 
-        const url = `${SUPABASE_URL}/rest/v1/products?description=ilike.*${encodeURIComponent(keyword)}*&select=*`;
+    const url = `${SUPABASE_URL}/rest/v1/products?description=ilike.*${keyword}*&select=*`;
 
-        const res = await fetch(url, {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: "Bearer " + SUPABASE_KEY
-            }
-        });
+    const res = await fetch(url, {
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: "Bearer " + SUPABASE_KEY
+        }
+    });
 
-        const data = await res.json();
-        showResults(data);
-
-    } catch (err) {
-        console.error(err);
-        alert("Keyword search failed");
-    }
+    const data = await res.json();
+    showResults(data);
 }
 
 // =====================
@@ -64,33 +54,30 @@ function showResults(data) {
     div.innerHTML = "";
 
     if (!data || data.length === 0) {
-        div.innerHTML = "<p>No results found</p>";
+        div.innerHTML = "<p>No results</p>";
         return;
     }
 
     data.forEach(p => {
-
         div.innerHTML += `
-            <div class="product">
+            <div>
                 <b>${p.description ?? ""}</b><br>
-                Barcode: ${p.barcode ?? ""}<br>
-                Price: ${p.price ?? 0}<br>
-                Cost: ${p.cost ?? 0}<br>
-                Qty: ${p.qty_on_hand ?? 0}
+                ${p.barcode ?? ""}<br>
+                ${p.price ?? 0} | ${p.qty_on_hand ?? 0}
             </div>
         `;
     });
 }
 
 // =====================
-// OPEN SCANNER (BACK CAMERA)
+// OPEN CAMERA SCANNER
 // =====================
 async function openScanner() {
 
     try {
 
         if (!window.ZXing) {
-            alert("ZXing library not loaded");
+            alert("ZXing not loaded");
             return;
         }
 
@@ -105,30 +92,27 @@ async function openScanner() {
             return;
         }
 
-        let backCamera = devices.find(d =>
+        // prefer back camera
+        let back = devices.find(d =>
             d.label.toLowerCase().includes("back") ||
             d.label.toLowerCase().includes("rear") ||
             d.label.toLowerCase().includes("environment")
         );
 
-        let deviceId = backCamera ? backCamera.deviceId : devices[0].deviceId;
+        const deviceId = back ? back.deviceId : devices[0].deviceId;
 
-        codeReader.decodeFromVideoDevice(
-            deviceId,
-            "scannerVideo",
-            (result, err) => {
+        codeReader.decodeFromVideoDevice(deviceId, "scannerVideo", (result) => {
 
-                if (result) {
-                    document.getElementById("barcodeBox").value = result.text;
-                    closeScanner();
-                    searchByBarcode();
-                }
+            if (result) {
+                document.getElementById("barcodeBox").value = result.text;
+
+                closeScanner();
+                searchByBarcode();
             }
-        );
+        });
 
-    } catch (err) {
-        console.error(err);
-        alert("Camera error: " + err);
+    } catch (e) {
+        alert("Camera error: " + e.message);
     }
 }
 
