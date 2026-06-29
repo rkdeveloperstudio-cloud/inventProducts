@@ -11,7 +11,8 @@ async function searchByBarcode() {
     const barcode = document.getElementById("barcodeBox").value.trim();
     if (!barcode) return;
 
-    const url = `${SUPABASE_URL}/rest/v1/products?barcode=eq.${barcode}&select=*`;
+    const url =
+`${SUPABASE_URL}/rest/v1/products?barcode=eq.${encodeURIComponent(barcode)}&select=*`;
 
     const res = await fetch(url, {
         headers: {
@@ -32,7 +33,8 @@ async function searchByKeyword() {
     const keyword = document.getElementById("keywordBox").value.trim();
     if (!keyword) return;
 
-    const url = `${SUPABASE_URL}/rest/v1/products?description=ilike.*${keyword}*&select=*`;
+    const url =
+`${SUPABASE_URL}/rest/v1/products?description=ilike.*${encodeURIComponent(keyword)}*&select=*`;
 
     const res = await fetch(url, {
         headers: {
@@ -54,7 +56,20 @@ function formatMoney(value) {
         maximumFractionDigits: 2
     });
 }
+function formatDate(value) {
 
+    if (!value)
+        return "-";
+
+    const d = new Date(value);
+
+    return d.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
+
+}
 function showResults(data) {
 
     const div = document.getElementById("results");
@@ -67,25 +82,39 @@ function showResults(data) {
 
     data.forEach(p => {
 
-        div.innerHTML += `
-            <div class="product">
+       div.innerHTML += `
+<div class="product">
 
-                <div><b>${p.barcode ?? ""}</b></div>
+    <div style="font-size:15px;font-weight:bold;color:#1565c0;">
+        ${p.barcode ?? ""}
+    </div>
 
-                <div style="font-size:16px; font-weight:bold; margin-top:4px;">
-                    ${p.description ?? ""}
-                </div>
+    <div style="font-size:18px;font-weight:bold;margin:8px 0;">
+        ${p.description ?? ""}
+    </div>
 
-                <div style="margin-top:6px;">
-                    <div>Cost: ${formatMoney(p.cost)}</div>
-                    <div>Price: ${formatMoney(p.price)}</div>
-                    <div>Qty: ${parseInt(p.qty_on_hand || 0)} pcs</div>
-                </div>
+    <hr>
 
-            </div>
-        `;
+   <div><b>Cost :</b> ${formatMoney(p.cost)}</div>
+
+<div><b>Price :</b> ${formatMoney(p.price)}</div>
+
+<div>
+    <b>Qty :</b>
+    <span style="color:${qtyColor}; font-weight:bold;">
+        ${qty}
+    </span>
+</div>
+
+    <div><b>Supplier :</b> ${p.latest_supplier ?? "-"}</div>
+
+    <div><b>Latest Purchase :</b> ${formatDate(p.latest_purchase_date)}</div>
+
+</div>
+`;
     });
-}// =====================
+}
+// =====================
 // OPEN CAMERA SCANNER
 // =====================
 async function openScanner() {
