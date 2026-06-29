@@ -82,7 +82,14 @@ function showResults(data) {
 
     data.forEach(p => {
 
-       div.innerHTML += `
+        const qty = parseInt(p.qty_on_hand || 0);
+
+        const qtyColor =
+            qty < 0 ? "red" :
+            qty === 0 ? "gray" :
+            "green";
+
+        div.innerHTML += `
 <div class="product">
 
     <div style="font-size:15px;font-weight:bold;color:#1565c0;">
@@ -95,20 +102,20 @@ function showResults(data) {
 
     <hr>
 
-   <div><b>Cost :</b> ${formatMoney(p.cost)}</div>
+    <div><b>Cost :</b> ${formatMoney(p.cost)}</div>
 
-<div><b>Price :</b> ${formatMoney(p.price)}</div>
+    <div><b>Price :</b> ${formatMoney(p.price)}</div>
 
-<div>
-    <b>Qty :</b>
-    <span style="color:${qtyColor}; font-weight:bold;">
-        ${qty}
-    </span>
-</div>
+    <div>
+        <b>Qty :</b>
+        <span style="color:${qtyColor}; font-weight:bold;">
+            ${qty}
+        </span>
+    </div>
 
-    <div><b>Supplier :</b> ${p.latest_supplier ?? "-"}</div>
+    <div><b>Supplier :</b> ${p.latest_supplier || p.LatestSupplier || "-"}</div>
 
-    <div><b>Latest Purchase :</b> ${formatDate(p.latest_purchase_date)}</div>
+    <div><b>Latest Purchase :</b> ${formatDate(p.latest_purchase_date || p.PurchaseDate)}</div>
 
 </div>
 `;
