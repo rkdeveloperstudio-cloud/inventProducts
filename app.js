@@ -48,6 +48,13 @@ async function searchByKeyword() {
 // =====================
 // SHOW RESULTS
 // =====================
+function formatMoney(value) {
+    return parseFloat(value || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
 function showResults(data) {
 
     const div = document.getElementById("results");
@@ -59,17 +66,26 @@ function showResults(data) {
     }
 
     data.forEach(p => {
+
         div.innerHTML += `
-            <div>
-                <b>${p.description ?? ""}</b><br>
-                ${p.barcode ?? ""}<br>
-                ${p.price ?? 0} | ${p.qty_on_hand ?? 0}
+            <div class="product">
+
+                <div><b>${p.barcode ?? ""}</b></div>
+
+                <div style="font-size:16px; font-weight:bold; margin-top:4px;">
+                    ${p.description ?? ""}
+                </div>
+
+                <div style="margin-top:6px;">
+                    <div>Cost: ${formatMoney(p.cost)}</div>
+                    <div>Price: ${formatMoney(p.price)}</div>
+                    <div>Qty: ${parseInt(p.qty_on_hand || 0)} pcs</div>
+                </div>
+
             </div>
         `;
     });
-}
-
-// =====================
+}// =====================
 // OPEN CAMERA SCANNER
 // =====================
 async function openScanner() {
