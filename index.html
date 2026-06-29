@@ -2,8 +2,47 @@
 <html>
 <head>
     <title>Inventory PWA</title>
-    <link rel="manifest" href="manifest.json">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #results div {
+            background: #f4f4f4;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 10px;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -11,10 +50,17 @@
 <h2>Product Search</h2>
 
 <input id="searchBox" placeholder="Barcode or keyword">
+
 <button onclick="searchProducts()">Search</button>
+
+<button onclick="startScanner()">Scan Barcode</button>
+
+<video id="video"></video>
 
 <div id="results"></div>
 
+<script src="https://unpkg.com/@zxing/library@latest"></script>
 <script src="app.js"></script>
+
 </body>
 </html>
