@@ -12,7 +12,7 @@ async function searchByBarcode() {
     if (!barcode) return;
 
     const url =
-`${SUPABASE_URL}/rest/v1/products?barcode=eq.${encodeURIComponent(barcode)}&select=*`;
+`${SUPABASE_URL}/rest/v1/products?select=barcode,description,cost,price,qty_on_hand,latest_supplier,latest_purchase_date&barcode=eq.${encodeURIComponent(barcode)}`;
 
     const res = await fetch(url, {
         headers: {
@@ -34,7 +34,7 @@ async function searchByKeyword() {
     if (!keyword) return;
 
     const url =
-`${SUPABASE_URL}/rest/v1/products?description=ilike.*${encodeURIComponent(keyword)}*&select=*`;
+`${SUPABASE_URL}/rest/v1/products?select=barcode,description,cost,price,qty_on_hand,latest_supplier,latest_purchase_date&description=ilike.*${encodeURIComponent(keyword)}*`;
 
     const res = await fetch(url, {
         headers: {
