@@ -3,37 +3,56 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 let codeReader;
 
-// ==========================
-// SEARCH PRODUCTS
-// ==========================
-async function searchProducts() {
+// =====================
+// SEARCH BY BARCODE
+// =====================
+async function searchByBarcode() {
 
-    let keyword = document.getElementById("searchBox").value;
+    let barcode = document.getElementById("barcodeBox").value;
 
-    let url = `${SUPABASE_URL}/rest/v1/products?or=(barcode.ilike.*${keyword}*,description.ilike.*${keyword}*)&select=*`;
+    let url = `${SUPABASE_URL}/rest/v1/products?barcode=eq.${barcode}&select=*`;
 
-    let response = await fetch(url, {
+    let res = await fetch(url, {
         headers: {
             apikey: SUPABASE_KEY,
             Authorization: "Bearer " + SUPABASE_KEY
         }
     });
 
-    let data = await response.json();
-
+    let data = await res.json();
     showResults(data);
 }
 
-// ==========================
+// =====================
+// SEARCH BY KEYWORD
+// =====================
+async function searchByKeyword() {
+
+    let keyword = document.getElementById("keywordBox").value;
+
+    let url = `${SUPABASE_URL}/rest/v1/products?or=(description.ilike.*${keyword}*)&select=*`;
+
+    let res = await fetch(url, {
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: "Bearer " + SUPABASE_KEY
+        }
+    });
+
+    let data = await res.json();
+    showResults(data);
+}
+
+// =====================
 // SHOW RESULTS
-// ==========================
+// =====================
 function showResults(data) {
 
     let div = document.getElementById("results");
     div.innerHTML = "";
 
     if (data.length === 0) {
-        div.innerHTML = "<p>No products found</p>";
+        div.innerHTML = "<p>No results found</p>";
         return;
     }
 
@@ -51,13 +70,17 @@ function showResults(data) {
     });
 }
 
-// ==========================
-// START CAMERA SCANNER
-// ==========================
-async function startScanner() {
+---
 
-    const video = document.getElementById("video");
-    video.style.display = "block";
+# 📷 3. BACK CAMERA SCANNER (IMPORTANT PART)
+
+```javascript
+// =====================
+// OPEN SCANNER (BACK CAMERA ONLY)
+// =====================
+async function openScanner() {
+
+    document.getElementById("scannerContainer").style.display = "block";
 
     codeReader = new ZXing.BrowserMultiFormatReader();
 
@@ -65,20 +88,27 @@ async function startScanner() {
 
         const devices = await codeReader.listVideoInputDevices();
 
-        const backCamera = devices[0].deviceId;
+        // try to select BACK camera
+        let backCamera = devices.find(d =>
+            d.label.toLowerCase().includes("back") ||
+            d.label.toLowerCase().includes("rear") ||
+            d.label.toLowerCase().includes("environment")
+        );
+
+        let deviceId = backCamera ? backCamera.deviceId : devices[0].deviceId;
 
         await codeReader.decodeFromVideoDevice(
-            backCamera,
-            "video",
+            deviceId,
+            "scannerVideo",
             (result, err) => {
 
                 if (result) {
 
-                    document.getElementById("searchBox").value = result.text;
+                    document.getElementById("barcodeBox").value = result.text;
 
-                    stopScanner();
+                    closeScanner();
 
-                    searchProducts();
+                    searchByBarcode();
                 }
             }
         );
@@ -88,14 +118,14 @@ async function startScanner() {
     }
 }
 
-// ==========================
-// STOP CAMERA
-// ==========================
-function stopScanner() {
+// =====================
+// CLOSE SCANNER
+// =====================
+function closeScanner() {
 
     if (codeReader) {
         codeReader.reset();
     }
 
-    document.getElementById("video").style.display = "none";
+    document.getElementById("scannerContainer").style.display = "none";
 }
