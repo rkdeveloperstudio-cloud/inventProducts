@@ -44,6 +44,8 @@ async function searchByKeyword() {
     });
 
     const data = await res.json();
+console.log(data);
+alert(JSON.stringify(data));
     showResults(data);
 }
 
