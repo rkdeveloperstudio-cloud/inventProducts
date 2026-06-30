@@ -96,7 +96,9 @@ function showResults(data) {
             qty < 0 ? "red" :
             qty === 0 ? "gray" :
             "green";
-
+console.log("Supplier =", p.latest_supplier);
+console.log("Purchase =", p.latest_purchase_date);
+console.log(p);
         html += `
 <div class="product">
 
@@ -120,9 +122,9 @@ function showResults(data) {
         </span>
     </div>
 
-    <div><b>Supplier :</b> ${p.latest_supplier ?? "-"}</div>
-    <div><b>Latest Purchase :</b> ${formatDate(p.latest_purchase_date)}</div>
+   <div><b>Supplier :</b> ${p.latest_supplier ?? "-"}</div>
 
+<div><b>Latest Purchase :</b> ${p.latest_purchase_date ? formatDate(p.latest_purchase_date) : "-"}</div>
 </div>`;
     });
 
