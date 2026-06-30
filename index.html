@@ -44,18 +44,26 @@
         }
 
         /* SCANNER */
-        #scannerContainer {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 240px;
-            height: 180px;
-            background: black;
-            border-radius: 10px;
-            overflow: hidden;
-            display: none;
-            z-index: 9999;
-        }
+       #scannerContainer {
+    position: fixed;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 90%;
+    max-width: 420px;
+    height: 180px;
+
+    background: black;
+    border-radius: 12px;
+    overflow: hidden;
+
+    display: none;
+    z-index: 9999;
+
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
 
         #scannerVideo {
             width: 100%;
