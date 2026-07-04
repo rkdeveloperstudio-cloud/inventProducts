@@ -13,7 +13,7 @@ async function searchByBarcode() {
     if (!barcode) return;
 
    const url =
-`${SUPABASE_URL}/rest/v1/products?select=barcode,description,cost,price,qty_on_hand,latest_supplier,latest_purchase_date&barcode=eq.${encodeURIComponent(barcode)}`;
+`${SUPABASE_URL}/rest/v1/products?select=barcode,description,cost,price,qty_on_hand,latest_supplier,latest_purchase_date,latest_purchase_qty,latest_sale_date&barcode=eq.${encodeURIComponent(barcode)}`;
 
     const res = await fetch(url, {
         headers: {
@@ -35,7 +35,7 @@ async function searchByKeyword() {
     if (!keyword) return;
 
     const url =
-`${SUPABASE_URL}/rest/v1/products?select=barcode,description,cost,price,qty_on_hand,latest_supplier,latest_purchase_date&description=ilike.*${encodeURIComponent(keyword)}*`;
+`${SUPABASE_URL}/rest/v1/products?select=barcode,description,cost,price,qty_on_hand,latest_supplier,latest_purchase_date,latest_purchase_qty,latest_sale_date&description=ilike.*${encodeURIComponent(keyword)}*`;
 
     const res = await fetch(url, {
         headers: {
@@ -61,6 +61,18 @@ function formatMoney(value) {
         maximumFractionDigits: 2
     });
 }
+
+function formatQty(value) {
+
+    return parseFloat(value || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+}
+
+
+
 function formatDate(value) {
 
     if (!value)
@@ -124,6 +136,10 @@ console.log(p);
    <div><b>Supplier :</b> ${p.latest_supplier ?? "-"}</div>
 
 <div><b>Latest Purchase :</b> ${p.latest_purchase_date ? formatDate(p.latest_purchase_date) : "-"}</div>
+
+<div><b>Purchase Qty :</b> ${formatQty(p.latest_purchase_qty)}</div>
+
+<div><b>Latest Sale :</b> ${p.latest_sale_date ? formatDate(p.latest_sale_date) : "-"}</div>
 </div>`;
     });
 
