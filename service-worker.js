@@ -1,9 +1,15 @@
-const CACHE_NAME = "inventory-pwa-v2";
+const CACHE_NAME = "inventory-pwa-v3";
 
 const STATIC_FILES = [
   "./",
   "./index.html",
+  "./sales.html",
+  "./inventory.html",
+
   "./app.js",
+  "./sales.js",
+  "./inventory.js",
+
   "./style.css",
   "./manifest.json"
 ];
@@ -46,12 +52,15 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
 
   // Handle navigation (THIS FIXES 404 AFTER INSTALL)
-  if (event.request.mode === "navigate") {
+ if (event.request.mode === "navigate") {
+
     event.respondWith(
-      fetch("./index.html").catch(() => caches.match("./index.html"))
+        fetch(event.request)
+        .catch(() => caches.match(event.request))
     );
+
     return;
-  }
+}
 
   // API requests → always network (IMPORTANT for Supabase)
   if (event.request.url.includes("/rest/v1/")) {
