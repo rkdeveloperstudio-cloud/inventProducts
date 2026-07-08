@@ -52,7 +52,8 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
 
   // Handle navigation (THIS FIXES 404 AFTER INSTALL)
- if (event.request.mode === "navigate") {
+// Handle HTML pages
+if (event.request.mode === "navigate") {
 
     event.respondWith(
         fetch(event.request)
@@ -61,7 +62,6 @@ self.addEventListener("fetch", event => {
 
     return;
 }
-
   // API requests → always network (IMPORTANT for Supabase)
   if (event.request.url.includes("/rest/v1/")) {
     event.respondWith(fetch(event.request));
