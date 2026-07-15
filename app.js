@@ -123,7 +123,7 @@ console.log(p);
 
     <hr>
 
-    <div><b>Cost :</b> ${formatMoney(p.cost)}</div>
+    \\ <div><b>Cost :</b> ${formatMoney(p.cost)}</div>
     <div><b>Price :</b> ${formatMoney(p.price)}</div>
 
     <div>
